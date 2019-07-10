@@ -21,23 +21,72 @@ To make a long story short, if you do not want to have any dependencies between 
 When running a `python3` program to prepare data for an evaluation, I hit an `ascii`-conversion error. 
 
 ```
-# put the error here
+Traceback (most recent call last):
+  File "/qualstorzws01/data_zws/lbe/prog/poolHosAndShbLBEData/generateCommonHerdID.py", line 68, in <module>
+    for i, line in enumerate(dbif):
+  File "/usr/lib/python3.4/encodings/ascii.py", line 26, in decode
+    return codecs.ascii_decode(input, self.errors)[0]
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 537: ordinal not in range(128)
 ```
 
 Surprisingly enough, when my colleague was running the same program, he did not get the error. For him the program worked without any problems. The `python3` program is running on an Ubuntu linux server. My colleage and I are both using the same username on the linux system. But still we are not getting the same results. The aim of the `python3` program is to read an UTF-8 encoded file line by line and to extract and to reformat certain pieces of information from that file. 
 
-After a while of investigation, my colleague and I found that the program `locale` was producing different results, even when running it as the same username on the remote linux system. This lead us on the path that the settings of the local MacOs system had something to do with the differences that my colleague and I were encountering. Based on an article on `[need reference here]()`, it became clear that a specific option in the Terminal.app of MacOs can cause locale related settings to be different on remote systems, even when logging in as the same user.
+After a while of investigation, my colleague and I found that the program `locale` was producing different results, even when running it as the same username on the remote linux system. This lead us on the path that the settings of the local MacOs system had something to do with the differences that my colleague and I were encountering. Based on a blog post by [Remi Bergsma](https://blog.remibergsma.com/2012/07/10/setting-locales-correctly-on-mac-osx-terminal-application/) and an article on `[cyberciti.biz](https://www.cyberciti.biz/faq/os-x-terminal-bash-warning-setlocale-lc_ctype-cannot-change-locale/)`, it became clear that a specific option in the Terminal.app of MacOs can cause locale related settings to be different on remote systems, even when logging in as the same user.
 
 
 ## Solution
 The above mentioned option is found in the Preferences of the Terminal.app. The following screenshots show the specific option which needs to be deactivated in order to avoid the passing of locale-settings form the local system to the remote system.
 
-```{r}
-rmddochelper::use_odg_graphic()
+```{r termprefoption, echo=FALSE, hook_convert_odg=TRUE, fig_path="odg"}
+#rmddochelper::use_odg_graphic(ps_path = "odg/termprefoption.odg")
+knitr::include_graphics(path = "odg/termprefoption.png")
+```
+
+As a check, we can run the `locale` program can be run on the local MacOs Terminal.app and on the remote system. If the values of the listed variables are different, the deactivation of the option worked. On my local system I get
+
+```
+$ locale
+LANG=
+LC_COLLATE="C"
+LC_CTYPE="C"
+LC_MESSAGES="C"
+LC_MONETARY="C"
+LC_NUMERIC="C"
+LC_TIME="C"
+LC_ALL=
+```
+
+On the remove system, the same command results in
+
+```
+$ locale
+LANG=de_CH.UTF-8
+LANGUAGE=de_CH:de
+LC_CTYPE="de_CH.UTF-8"
+LC_NUMERIC="de_CH.UTF-8"
+LC_TIME="de_CH.UTF-8"
+LC_COLLATE="de_CH.UTF-8"
+LC_MONETARY="de_CH.UTF-8"
+LC_MESSAGES="de_CH.UTF-8"
+LC_PAPER="de_CH.UTF-8"
+LC_NAME="de_CH.UTF-8"
+LC_ADDRESS="de_CH.UTF-8"
+LC_TELEPHONE="de_CH.UTF-8"
+LC_MEASUREMENT="de_CH.UTF-8"
+LC_IDENTIFICATION="de_CH.UTF-8"
+LC_ALL=
 ```
 
 
+## More Background
+A more detailed background on the topics of [locale](https://en.wikipedia.org/wiki/Locale_(computer_software)) and [internalisation and localisation](https://en.wikipedia.org/wiki/Internationalization_and_localization) can be found on Wikipedia. In short, **locale** corresponds to a set of parameters that specify the user's language, region and any special preferences that the user want to see in its user interface. Such parameter settings might include the language, special formatting of dates and times and special appearances of numbers. Because the language is included in the locale parameter set, the charcter-encoding which corresponds of the mapping of language alphabets to the corresponding byte representation, is also important.
+
+On POSIX platforms, the different locales follow a certain standardized naming convention. From a commandline based user interface most of these systems offer a program that is called `locale` which allows to check the current settings. 
 
 
 
 
+
+
+
+ 
