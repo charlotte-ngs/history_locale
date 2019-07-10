@@ -1,0 +1,43 @@
+---
+title: "A Brief History Of Locale And Some Strange Side-Effects"
+author: "Peter von Rohr"
+date: "7/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::knit_hooks$set(hook_convert_odg = rmddochelper::hook_convert_odg)
+```
+
+## Summary
+
+tl;dr Based on a strange `ascii`-converion error produced by `python3`, my colleague [Urs Schuler](https://qualitasag.ch/mitarbeiterserie-who-is-5/) and I found an interesting relationship between the settings of the locale variables in the local MacOs Terminal.App and the same settings on a remote ubuntu linux system when logging in from the local Terminal to the remote system using `ssh`. 
+
+To make a long story short, if you do not want to have any dependencies between the settings of the locale variables between the local and the remote system, change a small setting in the preferences of the Terminal.App. The setting is found under `Terminal` > `Preferences` > `Profile` > `Advanced` and deactivated the option `Set local environment variables on startup`. Please see the screenshots below for a more detailed description.
+
+
+## Problem Diagnostics
+When running a `python3` program to prepare data for an evaluation, I hit an `ascii`-conversion error. 
+
+```
+# put the error here
+```
+
+Surprisingly enough, when my colleague was running the same program, he did not get the error. For him the program worked without any problems. The `python3` program is running on an Ubuntu linux server. My colleage and I are both using the same username on the linux system. But still we are not getting the same results. The aim of the `python3` program is to read an UTF-8 encoded file line by line and to extract and to reformat certain pieces of information from that file. 
+
+After a while of investigation, my colleague and I found that the program `locale` was producing different results, even when running it as the same username on the remote linux system. This lead us on the path that the settings of the local MacOs system had something to do with the differences that my colleague and I were encountering. Based on an article on `[need reference here]()`, it became clear that a specific option in the Terminal.app of MacOs can cause locale related settings to be different on remote systems, even when logging in as the same user.
+
+
+## Solution
+The above mentioned option is found in the Preferences of the Terminal.app. The following screenshots show the specific option which needs to be deactivated in order to avoid the passing of locale-settings form the local system to the remote system.
+
+```{r}
+rmddochelper::use_odg_graphic()
+```
+
+
+
+
+
+
